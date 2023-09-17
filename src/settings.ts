@@ -20,7 +20,7 @@ app.use(RouterPath.videos, videosRouter)
 
 
 app.get('/', (req:Request, res:Response) => {
-    res.send('Hello World!)(')
+    res.send('Hello World!)***(')
 })
 app.delete('/testing/all-data',(req:Request, res:Response)=>{
     db.courses = []
