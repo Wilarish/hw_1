@@ -33,8 +33,7 @@ videosRouter.get('/:id', (req:Request, res:Response) => {
 videosRouter.post('/', (req:Request, res:Response) => {
     const title = req.body.title
     const author = req.body.author
-    const resol:[] = req.body.resolutions
-    const resol_fin: resolutions[] = []
+    let resolutions_q:[] = req.body.availableResolutions
     let errors: ValidationErrorType[] = [];
     if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
         errors.push({message: "invalid title", field: 'title'})
@@ -42,32 +41,22 @@ videosRouter.post('/', (req:Request, res:Response) => {
     if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
         errors.push({message: "invalid author", field: 'author'})
     }
-    for (let i = 0; i< resol.length; i++){
-        if(!resol || !(resol[i] in resolutions)){
-            errors.push({message: "invalid resolutions", field: 'resolutions'})
-            break
-        }
-        else {
-            if( typeof resol[i] === 'string'){
-                resol_fin.push(resolutions[resol[i]])
-            }
-        }
+    if(!resolutions_q){
+        errors.push({message: "invalid resolutions", field: 'resolutions'})
     }
-
-
     if(errors.length > 0){
         res.status(400).send(errors)
     }
     else{
         const video: videoType = {
             id: +(new Date()),
-            title:  req.body.title,
-            author: req.body.author,
+            title: title,
+            author: author,
             canBeDownloaded: false,
             minAgeRestriction: null,
-            createdAt: new Date().toISOString(), //date.toIsoString()
+            createdAt: new Date().toISOString(),
             publicationDate: new Date(new Date().getDate() +1).toISOString(), // createdAt = 1 day, (put)
-            availableResolutions: resol_fin
+            availableResolutions: resolutions_q
         }
         db_hw_1.videos.push(video)
         res.status(201).send(video)
