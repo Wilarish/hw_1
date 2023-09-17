@@ -33,7 +33,8 @@ videosRouter.get('/:id', (req:Request, res:Response) => {
 videosRouter.post('/', (req:Request, res:Response) => {
     const title = req.body.title
     const author = req.body.author
-    const resolutions: resolutions[] = req.body.resolutions
+    const resol:[] = req.body.resolutions
+    const resol_fin: resolutions[] = []
     let errors: ValidationErrorType[] = [];
     if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
         errors.push({message: "invalid title", field: 'title'})
@@ -41,9 +42,16 @@ videosRouter.post('/', (req:Request, res:Response) => {
     if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
         errors.push({message: "invalid author", field: 'author'})
     }
-    if(!resolutions){
-        errors.push({message: "invalid resolutions", field: 'resolutions'})
+    for (let i = 0; i< resol.length; i++){
+        if(!resol || !(resol[i] in resolutions)){
+            errors.push({message: "invalid resolutions", field: 'resolutions'})
+            break
+        }
+        else {
+            resol_fin.push(resolutions[resol[i]])
+        }
     }
+
 
     if(errors.length > 0){
         res.status(400).send(errors)
@@ -57,7 +65,7 @@ videosRouter.post('/', (req:Request, res:Response) => {
             minAgeRestriction: null,
             createdAt: new Date().toISOString(), //date.toIsoString()
             publicationDate: new Date(new Date().getDate() +1).toISOString(), // createdAt = 1 day, (put)
-            availableResolutions: resolutions
+            availableResolutions: resol_fin
         }
         db_hw_1.videos.push(video)
         res.status(201).send(video)

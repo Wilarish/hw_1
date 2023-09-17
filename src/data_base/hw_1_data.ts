@@ -46,7 +46,7 @@ export const db_hw_1: DbType_HW_1 = {
         minAgeRestriction: null, // (post -> def value = null) => put
         createdAt: new Date().toISOString(), //date.toIsoString()
         publicationDate: new Date(new Date().getDate() +1).toISOString(), // createdAt = 1 day, (put)
-        availableResolutions: [resolutions.P240, resolutions.P360, resolutions.P480, resolutions.P720]
+        availableResolutions: [resolutions['P144'], resolutions.P360, resolutions.P480, resolutions.P720]
     }
 
     ]
