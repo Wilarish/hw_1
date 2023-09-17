@@ -48,7 +48,9 @@ videosRouter.post('/', (req:Request, res:Response) => {
             break
         }
         else {
-            resol_fin.push(resolutions[resol[i]])
+            if( typeof resol[i] === 'string'){
+                resol_fin.push(resolutions[resol[i]])
+            }
         }
     }
 
