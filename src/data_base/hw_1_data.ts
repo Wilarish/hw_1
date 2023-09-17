@@ -1,4 +1,4 @@
-enum resolutions{
+export enum resolutions{
     P144 = "P144",
     P240 = "P240",
     P360 = "P360",
@@ -26,7 +26,7 @@ export type ValidationErrorType = {
     field: string
 }
 
-//post 400 + {errorsMessages: ValidationErrorType[]} || 201 + video
+//post 400 + {errorsMessages: ValidationErrorType[]} || 201 + video 🟨
 //put  404 || 400 {errorsMessages: ValidationErrorType[]} || 204
 //delete 404 || 204
 //get all => 200 + videos ✅
