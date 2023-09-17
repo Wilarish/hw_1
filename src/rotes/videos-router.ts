@@ -36,13 +36,13 @@ videosRouter.post('/', (req:Request, res:Response) => {
     const resolutions: resolutions[] = req.body.resolutions
     let errors: ValidationErrorType[] = [];
     if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
-        errors.push({message: "invalid title", field: title})
+        errors.push({message: "invalid title", field: 'title'})
     }
     if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
-        errors.push({message: "invalid author", field: author})
+        errors.push({message: "invalid author", field: 'author'})
     }
     if(!resolutions){
-        errors.push({message: "invalid resolutions", field: resolutions})
+        errors.push({message: "invalid resolutions", field: 'resolutions'})
     }
 
     if(errors.length > 0){
