@@ -1,0 +1,9 @@
+enum HTTP_statuses{
+    HTTP_OK_200 = 200,
+    HTTP_CREATED_201 = 201,
+    HTTP_NO_CONTENT_204 = 204,
+
+    HTTP_BAD_REQUEST = 400,
+    HTTP_NOT_FOUND_404 = 404,
+
+}
