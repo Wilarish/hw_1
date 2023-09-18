@@ -55,14 +55,15 @@ videosRouter.post('/', (req:Request, res:Response) => {
         res.status(400).send(errors)
     }
     else{
+        const date = new Date()
         const video: videoType = {
             id: +(new Date()),
             title: title,
             author: author,
             canBeDownloaded: false,
             minAgeRestriction: null,
-            createdAt: new Date().toISOString(),
-            publicationDate: new Date(new Date().getDate() +1).toISOString(), // createdAt = 1 day, (put)
+            createdAt: date.toISOString(),
+            publicationDate: new Date(date.setDate(date.getDate() +1)).toISOString(), // createdAt = 1 day, (put)
             availableResolutions: resolutions_q
         }
         db_hw_1.videos.push(video)
