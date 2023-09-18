@@ -96,7 +96,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
         if(typeof canBeDownloaded !== 'boolean'){
             errors.push({message: "invalid canBeDownloaded", field: 'canBeDownloaded'})
         }
-        if(typeof minAge !== 'number'){
+        if(typeof minAge !== 'number' || minAge> 18){
             errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
         }
         if(typeof pubicDate !==  'string'){
