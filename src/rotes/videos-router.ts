@@ -79,7 +79,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
 
     const pubicDate = req.body.publicationDate
     const minAge = req.body.minAgeRestriction
-    const canBedownloaded = req.body.canBeDownloaded
+    const canBeDownloaded = req.body.canBeDownloaded
     const title = req.body.title
     const author = req.body.author
     const resolutions_q = req.body.availableResolutions
@@ -93,8 +93,8 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
         if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
             errors.push({message: "invalid author", field: 'author'})
         }
-        if(typeof canBedownloaded !== 'boolean'){
-            errors.push({message: "invalid canBedownloaded", field: 'canBedownloaded'})
+        if(typeof canBeDownloaded !== 'boolean'){
+            errors.push({message: "invalid canBeDownloaded", field: 'canBeDownloaded'})
         }
         if(typeof minAge !== 'number'){
             errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
@@ -122,7 +122,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
             video.title = title
             video.author = author
             video.availableResolutions = resolutions_q
-            video.canBeDownloaded = canBedownloaded
+            video.canBeDownloaded = canBeDownloaded
             video.publicationDate = pubicDate
             video.minAgeRestriction = minAge
 
