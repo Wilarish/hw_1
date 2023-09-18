@@ -87,20 +87,20 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
     const video = db_hw_1.videos.find(c => c.id === +req.params.id)
     if (video)
     {
-        if(typeof pubicDate !==  'string'){
-            errors.push({message: "invalid publicationDate", field: 'publicationDate'})
-        }
-        if(typeof minAge !== 'number'){
-            errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
-        }
-        if(typeof canBedownloaded !== 'boolean'){
-            errors.push({message: "invalid canBedownloaded", field: 'canBedownloaded'})
-        }
         if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
             errors.push({message: "invalid title", field: 'title'})
         }
         if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
             errors.push({message: "invalid author", field: 'author'})
+        }
+        if(typeof canBedownloaded !== 'boolean'){
+            errors.push({message: "invalid canBedownloaded", field: 'canBedownloaded'})
+        }
+        if(typeof minAge !== 'number'){
+            errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
+        }
+        if(typeof pubicDate !==  'string'){
+            errors.push({message: "invalid publicationDate", field: 'publicationDate'})
         }
         if(resolutions_q){
             for(let i = 0; i < resolutions_q.length; i++){
