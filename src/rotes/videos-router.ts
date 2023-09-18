@@ -44,12 +44,12 @@ videosRouter.post('/', (req:Request, res:Response) => {
     if(resolutions_q){
         for(let i = 0; i < resolutions_q.length; i++){
             if(!Object.values(resolutions)?.includes(resolutions_q[i])){
-                errors.push({message: "invalid resolutions", field: 'resolutions'})
+                errors.push({message: "invalid resolutions", field: 'availableResolutions'})
                 break
             }
 
         }
-    }else errors.push({message: "unexpected resolutions", field: 'resolutions'})
+    }else errors.push({message: "unexpected resolutions", field: 'availableResolutions'})
 
     const Errors: Errors = {
         errorsMessages: errors
@@ -77,6 +77,7 @@ videosRouter.post('/', (req:Request, res:Response) => {
 })
 videosRouter.put('/:id',(req: Request, res:Response) =>{
 
+    const canBedownloaded = req.body.canBeDownloaded
     const title = req.body.title
     const author = req.body.author
     const resolutions_q = req.body.availableResolutions
@@ -84,6 +85,10 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
     const video = db_hw_1.videos.find(c => c.id === +req.params.id)
     if (video)
     {
+        if(typeof canBedownloaded !== 'boolean'){
+            errors.push({message: "invalid title", field: 'canBedownloaded'})
+        }
+
         if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
             errors.push({message: "invalid title", field: 'title'})
         }
@@ -93,12 +98,12 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
         if(resolutions_q){
             for(let i = 0; i < resolutions_q.length; i++){
                 if(!Object.values(resolutions)?.includes(resolutions_q[i])){
-                    errors.push({message: "invalid resolutions", field: 'resolutions'})
+                    errors.push({message: "invalid resolutions", field: 'availableResolutions'})
                     break
                 }
 
             }
-        }else errors.push({message: "unexpected resolutions", field: 'resolutions'})
+        }else errors.push({message: "unexpected resolutions", field: 'availableResolutions'})
 
         const Errors: Errors = {
             errorsMessages: errors
@@ -110,6 +115,8 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
             video.title = title
             video.author = author
             video.availableResolutions = resolutions_q
+            video.canBeDownloaded = canBedownloaded
+
             res.status(204).send(video)
         }
 

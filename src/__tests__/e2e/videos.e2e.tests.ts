@@ -127,7 +127,8 @@ describe('/videos', ()=>{
                 {
                     title: ' 2244d ',
                     author: 'authorhhhhh',
-                    availableResolutions: ['P144', 'P720']
+                    availableResolutions: ['P144', 'P720'],
+                    canBeDownloaded: true
                 }
             )
             .expect(204)
@@ -140,7 +141,7 @@ describe('/videos', ()=>{
                 title: ' 2244d ',
                 author: 'authorhhhhh',
                 availableResolutions: [resolutions.P144, resolutions.P720],
-
+                canBeDownloaded: true
             })
     });
     it('should delete course', async () => {
