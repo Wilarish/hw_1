@@ -1,6 +1,6 @@
 import {Request, Response, Router} from "express";
 
-import {db_hw_1, resolutions, ValidationErrorType, videoType} from "../data_base/hw_1_data";
+import {db_hw_1, Errors, resolutions, ValidationErrorType, videoType} from "../data_base/hw_1_data";
 
 
 export const videosRouter = Router()
@@ -51,8 +51,11 @@ videosRouter.post('/', (req:Request, res:Response) => {
         }
     }else errors.push({message: "unexpected resolutions", field: 'resolutions'})
 
+    const Errors: Errors = {
+        errorsMessages: errors
+    }
     if(errors.length > 0){
-        res.status(400).send(errors)
+        res.status(400).send(Errors)
     }
     else{
         const date = new Date()
@@ -97,8 +100,11 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
             }
         }else errors.push({message: "unexpected resolutions", field: 'resolutions'})
 
+        const Errors: Errors = {
+            errorsMessages: errors
+        }
         if(errors.length > 0){
-            res.status(400).send(errors)
+            res.status(400).send(Errors)
         }
         else {
             video.title = title

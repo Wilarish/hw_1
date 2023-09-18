@@ -25,6 +25,9 @@ export type ValidationErrorType = {
     message: string,
     field: string
 }
+export type Errors = {
+    errorsMessages: ValidationErrorType[]
+}
 
 //post 400 + {errorsMessages: ValidationErrorType[]} || 201 + video 🟨 ✅
 //put  404 || 400 {errorsMessages: ValidationErrorType[]} || 204
