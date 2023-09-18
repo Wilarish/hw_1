@@ -121,6 +121,7 @@ describe('/videos', ()=>{
     it('should update course correct ', async () => {
 
         //const data:updateCourses = {title:'video: change'}
+        const date: string = new Date().toISOString()
         await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send(
@@ -128,7 +129,9 @@ describe('/videos', ()=>{
                     title: ' 2244d ',
                     author: 'authorhhhhh',
                     availableResolutions: ['P144', 'P720'],
-                    canBeDownloaded: true
+                    canBeDownloaded: true,
+                    publicationDate: date,
+                    minAgeRestriction: 16
                 }
             )
             .expect(204)
@@ -141,7 +144,9 @@ describe('/videos', ()=>{
                 title: ' 2244d ',
                 author: 'authorhhhhh',
                 availableResolutions: [resolutions.P144, resolutions.P720],
-                canBeDownloaded: true
+                canBeDownloaded: true,
+                publicationDate: expect.any(String),
+                minAgeRestriction: 16
             })
     });
     it('should delete course', async () => {
