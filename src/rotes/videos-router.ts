@@ -97,7 +97,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
             errors.push({message: "invalid canBedownloaded", field: 'canBedownloaded'})
         }
 
-        if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
+        if(title.trim().length > 40){
             errors.push({message: "invalid title", field: 'title'})
         }
         if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){

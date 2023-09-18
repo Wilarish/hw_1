@@ -121,7 +121,7 @@ describe('/videos', ()=>{
     it('should update course correct ', async () => {
 
         //const data:updateCourses = {title:'video: change'}
-        const date: string = new Date().toISOString()
+        //const date: string = new Date().toISOString()
         await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send(
@@ -130,7 +130,7 @@ describe('/videos', ()=>{
                     author: 'authorhhhhh',
                     availableResolutions: ['P144', 'P720'],
                     canBeDownloaded: true,
-                    publicationDate: date,
+                    publicationDate: "2023-09-21T09:55:46.372Z",
                     minAgeRestriction: 16
                 }
             )
@@ -145,7 +145,7 @@ describe('/videos', ()=>{
                 author: 'authorhhhhh',
                 availableResolutions: [resolutions.P144, resolutions.P720],
                 canBeDownloaded: true,
-                publicationDate: expect.any(String),
+                publicationDate: "2023-09-21T09:55:46.372Z",
                 minAgeRestriction: 16
             })
     });
