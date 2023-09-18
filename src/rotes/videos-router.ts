@@ -35,12 +35,15 @@ videosRouter.post('/', (req:Request, res:Response) => {
     const author = req.body.author
     const resolutions_q = req.body.availableResolutions
     const errors: ValidationErrorType[] = [];
+
     if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
         errors.push({message: "invalid title", field: 'title'})
     }
+
     if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
         errors.push({message: "invalid author", field: 'author'})
     }
+
     if(resolutions_q){
         for(let i = 0; i < resolutions_q.length; i++){
             if(!Object.values(resolutions)?.includes(resolutions_q[i])){
@@ -105,7 +108,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
         }
 
         const date = new Date(pubicDate)
-        if(!date.getDate()){
+        if(!date.getDate() || typeof pubicDate !== 'string'){
             errors.push({message: "invalid publicationDate", field: 'publicationDate'})
         }
 
@@ -147,6 +150,7 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
 })
 videosRouter.delete('/:id', (req:Request, res:Response) => {
     for(let i =0;i<db_hw_1.videos.length;i++){
+
         if (db_hw_1.videos[i].id === +req.params.id){
             db_hw_1.videos.splice(i,1)
             res.sendStatus(204)
