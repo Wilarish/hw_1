@@ -1,7 +1,5 @@
 import request from "supertest";
 import {app, RouterPath} from "../../settings";
-import {createCourse} from "../../models/courses/createCourse";
-import {updateCourses} from "../../models/courses/updateCourses";
 import {resolutions} from "../../data_base/hw_1_data";
 
 describe('/videos', ()=>{
@@ -31,7 +29,7 @@ describe('/videos', ()=>{
             .expect(201)
 
         createdVideo = createResponse.body;
-        //console.log(createdVideo)
+
 
         expect(createdVideo).toEqual({
             id: createdVideo.id,
@@ -43,99 +41,131 @@ describe('/videos', ()=>{
             publicationDate: expect.any(String), // createdAt = 1 day, (put)
             availableResolutions: [resolutions.P144]
         })
-        console.log(createdVideo)
+
+        await request(app)
+            .get(`${RouterPath.videos}/${createdVideo.id}`)
+            .expect(200, createdVideo)
+
+    });
+    it('should create course_2 with correct data', async () => {
+
+        const createResponse = await request(app)
+            .post(RouterPath.videos)
+            .send({
+                title:  'title_2',
+                author: 'author_2',
+                availableResolutions: ['P144','P720']
+            })
+            .expect(201)
+
+        createdVideo_2 = createResponse.body;
+
+        expect(createdVideo_2).toEqual({
+            id: createdVideo_2.id,
+            title:  'title_2',
+            author: 'author_2',
+            canBeDownloaded: false,
+            minAgeRestriction: null,
+            createdAt: expect.any(String), //date.toIsoString()
+            publicationDate: expect.any(String), // createdAt = 1 day, (put)
+            availableResolutions: [resolutions.P144, resolutions.P720]
+        })
+
+        await request(app)
+            .get(RouterPath.videos)
+            .expect(200, [createdVideo, createdVideo_2])
+    });
+    it('shouldn`t сreate course with incorrect data', async () => {
+        await request(app)
+            .post(RouterPath.videos)
+            .send({
+                title:  ' 2244d ',
+                author: 'author_',
+                availableResolutions: ['P144','P72990']
+            })
+            .expect(400)
+    });
+    it('shouldn`t update video ', async () => {
+
+        //const data:updateCourses = {title:''}
+        await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send(
+                {
+                    title:  ' 2244d ',
+                    author: 'author_hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
+                    availableResolutions: ['P144','P720']
+                }
+            )
+            .expect(400)
+
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
             .expect(200, createdVideo)
     });
-    // it('should сreate course_2 with correct data', async () => {
-    //
-    //     const data:createCourse = {title:'video: shortcut_2'}
-    //     const createResponse = await request(app)
-    //         .post(RouterPath.courses)
-    //         .send(data)
-    //         .expect(201)
-    //
-    //     createdCourse_2 = createResponse.body;
-    //
-    //     expect(createdCourse_2).toEqual({
-    //         id: expect.any(Number),
-    //         title:'video: shortcut_2',
-    //         student_count: expect.any(Number)
-    //     })
-    //
-    //     await request(app)
-    //         .get(RouterPath.courses)
-    //         .expect(200, [createdCourse,createdCourse_2])
-    // });
-    // it('shouldn`t сreate course with incorrect data', async () => {
-    //     await request(app)
-    //         .post(RouterPath.courses)
-    //         .send({title:''})
-    //         .expect(400,'incorrect title')
-    // });
-    // it('shouldn`t update video ', async () => {
-    //
-    //     const data:updateCourses = {title:''}
-    //     await request(app)
-    //         .put(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .send(data)
-    //         .expect(400)
-    //
-    //     await request(app)
-    //         .get(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .expect(200, createdCourse)
-    // });
-    // it('should update unexpected course ', async () => {
-    //
-    //     const data:updateCourses = {title:''}
-    //     await request(app)
-    //         .put(`${RouterPath.courses}/${-100}`)
-    //         .send(data)
-    //         .expect(404)
-    //
-    // });
-    // it('should update course correct ', async () => {
-    //     //console.log(createdCourse)
-    //
-    //     const data:updateCourses = {title:'video: change'}
-    //     await request(app)
-    //         .put(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .send(data)
-    //         .expect(200)
-    //
-    //     //console.log(createdCourse)
-    //     await request(app)
-    //         .get(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .expect(200, {
-    //             ...createdCourse,
-    //             title:'video: change',
-    //
-    //         })
-    // });
-    // it('should delete course', async () => {
-    //
-    //     await request(app)
-    //         .delete(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .expect(204)
-    //
-    //     await request(app)
-    //         .get(`${RouterPath.courses}/${createdCourse.id}`)
-    //         .expect(404)
-    //
-    // });
-    // it('shouldn`t delete unexpected course', async () => {
-    //
-    //     const data:updateCourses = {title:''}
-    //     await request(app)
-    //         .delete(`${RouterPath.courses}/${-100}`)
-    //         .expect(404)
-    //
-    //     await request(app)
-    //         .get(`${RouterPath.courses}/${-100}`)
-    //         .expect(404)
-    //
-    // });
+    it('should update unexpected course ', async () => {
+
+        //const data:updateCourses = {title:''}
+        await request(app)
+            .put(`${RouterPath.videos}/${-100}`)
+            .send(
+                {
+                    title:  ' 2244d ',
+                    author: 'authorhhhhh',
+                    availableResolutions: ['P144','P720']
+                }
+            )
+            .expect(404)
+
+    });
+    it('should update course correct ', async () => {
+
+        //const data:updateCourses = {title:'video: change'}
+        await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send(
+                {
+                    title: ' 2244d ',
+                    author: 'authorhhhhh',
+                    availableResolutions: ['P144', 'P720']
+                }
+            )
+            .expect(204)
+
+
+        await request(app)
+            .get(`${RouterPath.videos}/${createdVideo.id}`)
+            .expect(200, {
+                ...createdVideo,
+                title: ' 2244d ',
+                author: 'authorhhhhh',
+                availableResolutions: [resolutions.P144, resolutions.P720],
+
+            })
+    });
+    it('should delete course', async () => {
+
+        await request(app)
+            .delete(`${RouterPath.videos}/${createdVideo.id}`)
+            .expect(204)
+
+        await request(app)
+            .get(`${RouterPath.videos}/${createdVideo.id}`)
+            .expect(404)
+
+    });
+    it('shouldn`t delete unexpected course', async () => {
+
+
+        await request(app)
+            .delete(`${RouterPath.videos}/${-100}`)
+            .expect(404)
+
+        await request(app)
+            .get(`${RouterPath.videos}/${-100}`)
+            .expect(404)
+
+    });
 
 
 })
