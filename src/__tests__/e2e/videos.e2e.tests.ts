@@ -1,6 +1,8 @@
 import request from "supertest";
 import {app, RouterPath} from "../../settings";
 import {resolutions} from "../../data_base/hw_1_data";
+import {createVideos} from "../../models/videos/createVideo";
+import {updateVideo} from "../../models/videos/updateVideo";
 
 describe('/videos', ()=>{
     beforeAll(async ()=>{
@@ -17,15 +19,16 @@ describe('/videos', ()=>{
     let createdVideo: any = null
     let createdVideo_2: any = null
 
-    it('should create course with correct data', async () => {
+    it('should create video with correct data', async () => {
 
+        const data: createVideos = {
+            title:  'title',
+            author: 'author',
+            availableResolutions: ['P144']
+        }
         const createResponse = await request(app)
             .post(RouterPath.videos)
-            .send({
-                title:  'title',
-                author: 'author',
-                availableResolutions: ['P144']
-            })
+            .send(data)
             .expect(201)
 
         createdVideo = createResponse.body;
@@ -47,15 +50,16 @@ describe('/videos', ()=>{
             .expect(200, createdVideo)
 
     });
-    it('should create course_2 with correct data', async () => {
+    it('should create video_2 with correct data', async () => {
 
+        const data: createVideos = {
+            title:  'title_2',
+            author: 'author_2',
+            availableResolutions: ['P144','P720']
+        }
         const createResponse = await request(app)
             .post(RouterPath.videos)
-            .send({
-                title:  'title_2',
-                author: 'author_2',
-                availableResolutions: ['P144','P720']
-            })
+            .send(data)
             .expect(201)
 
         createdVideo_2 = createResponse.body;
@@ -75,81 +79,83 @@ describe('/videos', ()=>{
             .get(RouterPath.videos)
             .expect(200, [createdVideo, createdVideo_2])
     });
-    it('shouldn`t сreate course with incorrect data', async () => {
+    it('shouldn`t сreate video with incorrect data', async () => {
+
+        const data: createVideos = {
+            title:  ' 2244d ',
+            author: 'author_',
+            availableResolutions: ['P144','P72990']
+        }
+
         await request(app)
             .post(RouterPath.videos)
-            .send({
-                title:  ' 2244d ',
-                author: 'author_',
-                availableResolutions: ['P144','P72990']
-            })
+            .send(data)
             .expect(400)
     });
     it('shouldn`t update video ', async () => {
 
-        //const data:updateCourses = {title:''}
+        const data:updateVideo = {
+            title: ' 2244d ',
+            author: 'author',
+            availableResolutions: ['P144', 'P146664'],
+            canBeDownloaded: true,
+            publicationDate: "2023-09-21T09:55:46.372Z",
+            minAgeRestriction: 16
+        }
+
         await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
-            .send(
-                {
-                    title:  ' 2244d ',
-                    author: 'author_hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
-                    availableResolutions: ['P144','P720']
-                }
-            )
+            .send(data)
             .expect(400)
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
             .expect(200, createdVideo)
     });
-    it('should update unexpected course ', async () => {
+    it('should update unexpected video ', async () => {
 
-        //const data:updateCourses = {title:''}
+        const data:updateVideo = {
+            title: ' 2244d ',
+            author: 'authorhh',
+            availableResolutions: ['P144', 'P720'],
+            canBeDownloaded: true,
+            publicationDate: "2023-09-21T09:55:46.372Z",
+            minAgeRestriction: 16
+        }
+
         await request(app)
             .put(`${RouterPath.videos}/${-100}`)
-            .send(
-                {
-                    title:  ' 2244d ',
-                    author: 'authorhhhhh',
-                    availableResolutions: ['P144','P720']
-                }
-            )
+            .send(data)
             .expect(404)
 
     });
-    it('should update course correct ', async () => {
+    it('should update video correct ', async () => {
 
-        //const data:updateCourses = {title:'video: change'}
-        //const date: string = new Date().toISOString()
+        const data:updateVideo = {
+            title: ' 2244d ',
+            author: 'authorhhhhh',
+            availableResolutions: ['P144', 'P720'],
+            canBeDownloaded: true,
+            publicationDate: "2023-09-21T09:55:46.372Z",
+            minAgeRestriction: 16
+        }
+        const date: string = new Date().toISOString()
         await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
-            .send(
-                {
-                    title: ' 2244d ',
-                    author: 'authorhhhhh',
-                    availableResolutions: ['P144', 'P720'],
-                    canBeDownloaded: true,
-                    publicationDate: "2023-09-21T09:55:46.372Z",
-                    minAgeRestriction: 16
-                }
-            )
+            .send(data)
             .expect(204)
 
 
-        await request(app)
+       const result =  await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(200, {
-                ...createdVideo,
-                title: ' 2244d ',
-                author: 'authorhhhhh',
-                availableResolutions: [resolutions.P144, resolutions.P720],
-                canBeDownloaded: true,
-                publicationDate: "2023-09-21T09:55:46.372Z",
-                minAgeRestriction: 16
-            })
+            .expect(200 )
+
+        expect(result.body).toEqual({
+            ...createdVideo,
+            ...data
+        })
     });
-    it('should delete course', async () => {
+    it('should delete video', async () => {
 
         await request(app)
             .delete(`${RouterPath.videos}/${createdVideo.id}`)
@@ -160,7 +166,7 @@ describe('/videos', ()=>{
             .expect(404)
 
     });
-    it('shouldn`t delete unexpected course', async () => {
+    it('shouldn`t delete unexpected video', async () => {
 
 
         await request(app)

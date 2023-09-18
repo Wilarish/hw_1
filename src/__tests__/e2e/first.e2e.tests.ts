@@ -67,15 +67,19 @@ describe('/courses', ()=>{
     });
     it('shouldn`t update video ', async () => {
 
+        //console.log(createdCourse)
         const data:updateCourses = {title:''}
         await request(app)
             .put(`${RouterPath.courses}/${createdCourse.id}`)
             .send(data)
             .expect(400)
 
+        //console.log(createdCourse)
+
         await request(app)
             .get(`${RouterPath.courses}/${createdCourse.id}`)
             .expect(200, createdCourse)
+         
     });
     it('should update unexpected course ', async () => {
 

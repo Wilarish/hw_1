@@ -9,9 +9,10 @@ coursesRouter.get('/', (req:Request, res:Response) => {
     res.send(db.courses)
 })
 coursesRouter.get('/:id', (req:Request, res:Response) => {
-    for (let i=0; i< db_hw_1.videos.length; i++){
-        if(db_hw_1.videos[i].id === +req.params.id){
-            res.sendStatus(200).send(db_hw_1.videos[i])
+    for (let i=0; i< db.courses.length; i++){
+        if(db.courses[i].id === +req.params.id){
+
+            res.status(200).send(db.courses[i])
             break;
         }
     }

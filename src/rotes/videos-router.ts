@@ -77,32 +77,41 @@ videosRouter.post('/', (req:Request, res:Response) => {
 })
 videosRouter.put('/:id',(req: Request, res:Response) =>{
 
-    const pubicDate = req.body.publicationDate
-    const minAge = req.body.minAgeRestriction
-    const canBeDownloaded = req.body.canBeDownloaded
-    const title = req.body.title
-    const author = req.body.author
-    const resolutions_q = req.body.availableResolutions
+    const pubicDate:string = req.body.publicationDate
+    const minAge:number = req.body.minAgeRestriction
+    const canBeDownloaded:boolean = req.body.canBeDownloaded
+    const title:string = req.body.title
+    const author:string = req.body.author
+    const resolutions_q:[] = req.body.availableResolutions
     const errors: ValidationErrorType[] = [];
-    const video = db_hw_1.videos.find(c => c.id === +req.params.id)
+    const video:videoType | undefined = db_hw_1.videos.find(c => c.id === +req.params.id)
     if (video)
     {
+
         if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
             errors.push({message: "invalid title", field: 'title'})
         }
+
         if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
             errors.push({message: "invalid author", field: 'author'})
         }
+
         if(typeof canBeDownloaded !== 'boolean'){
             errors.push({message: "invalid canBeDownloaded", field: 'canBeDownloaded'})
         }
+
         if(typeof minAge !== 'number' || minAge> 18){
             errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
         }
-        if(typeof pubicDate !==  'string'){
+
+        const date = new Date(pubicDate)
+        if(!date.getDate()){
             errors.push({message: "invalid publicationDate", field: 'publicationDate'})
         }
-        if(resolutions_q){
+
+        if(resolutions_q) {
+            const arr_check = new Set(resolutions_q)
+
             for(let i = 0; i < resolutions_q.length; i++){
                 if(!Object.values(resolutions)?.includes(resolutions_q[i])){
                     errors.push({message: "invalid resolutions", field: 'availableResolutions'})
@@ -110,7 +119,8 @@ videosRouter.put('/:id',(req: Request, res:Response) =>{
                 }
 
             }
-        }else errors.push({message: "unexpected resolutions", field: 'availableResolutions'})
+        }
+        else errors.push({message: "unexpected resolutions", field: 'availableResolutions'})
 
         const Errors: Errors = {
             errorsMessages: errors
