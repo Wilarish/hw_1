@@ -3,5 +3,6 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testTimeout: 100000,
-  rootDir: './src'
+  rootDir: './src',
+  testRegex: '.e2e.tests.ts$'
 };

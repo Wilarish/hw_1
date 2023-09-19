@@ -3,6 +3,8 @@ import {app, RouterPath} from "../../settings";
 import {resolutions} from "../../data_base/hw_1_data";
 import {createVideos} from "../../models/videos/createVideo";
 import {updateVideo} from "../../models/videos/updateVideo";
+import {test_manager} from "../manager/test_manager";
+import {HTTP_statuses} from "../../data_base/HTTP_statuses";
 
 describe('/videos', ()=>{
     beforeAll(async ()=>{
@@ -26,24 +28,11 @@ describe('/videos', ()=>{
             author: 'author',
             availableResolutions: ['P144']
         }
-        const createResponse = await request(app)
-            .post(RouterPath.videos)
-            .send(data)
-            .expect(201)
+        // Don`t understand this one
+        const {response, created_Video_Manager} = await test_manager.createUser(data)
 
-        createdVideo = createResponse.body;
+        createdVideo = created_Video_Manager;
 
-
-        expect(createdVideo).toEqual({
-            id: createdVideo.id,
-            title:  'title',
-            author: 'author',
-            canBeDownloaded: false,
-            minAgeRestriction: null,
-            createdAt: expect.any(String), //date.toIsoString()
-            publicationDate: expect.any(String), // createdAt = 1 day, (put)
-            availableResolutions: [resolutions.P144]
-        })
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
@@ -57,23 +46,11 @@ describe('/videos', ()=>{
             author: 'author_2',
             availableResolutions: ['P144','P720']
         }
-        const createResponse = await request(app)
-            .post(RouterPath.videos)
-            .send(data)
-            .expect(201)
+        // Don`t understand this one
+        const {response,created_Video_Manager} = await test_manager.createUser(data)
 
-        createdVideo_2 = createResponse.body;
+        createdVideo_2 = created_Video_Manager;
 
-        expect(createdVideo_2).toEqual({
-            id: createdVideo_2.id,
-            title:  'title_2',
-            author: 'author_2',
-            canBeDownloaded: false,
-            minAgeRestriction: null,
-            createdAt: expect.any(String), //date.toIsoString()
-            publicationDate: expect.any(String), // createdAt = 1 day, (put)
-            availableResolutions: [resolutions.P144, resolutions.P720]
-        })
 
         await request(app)
             .get(RouterPath.videos)
@@ -87,26 +64,102 @@ describe('/videos', ()=>{
             availableResolutions: ['P144','P72990']
         }
 
-        await request(app)
-            .post(RouterPath.videos)
-            .send(data)
-            .expect(400)
+        await test_manager.createUser(data, HTTP_statuses.BAD_REQUEST_400)
     });
     it('shouldn`t update video ', async () => {
 
         const data:updateVideo = {
             title: ' 2244d ',
             author: 'author',
-            availableResolutions: ['P144', 'P146664'],
+            availableResolutions: ['P144', 'P240'],
             canBeDownloaded: true,
             publicationDate: "2023-09-21T09:55:46.372Z",
             minAgeRestriction: 16
         }
 
-        await request(app)
+       const longTitle = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
-            .send(data)
+            .send({...data, title: 'hjfsbkfhjbwehfbjksdhbfjhdsbfjkhsdbkfjhsdbkfjhsdbfjsiobnononougbobuoibhiudhb'})
+            .expect(400, )
+
+        expect(longTitle.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'title'
+                }
+            ]
+        })
+
+        const nullAuthor =  await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send({...data, author: null})
             .expect(400)
+
+        expect(nullAuthor.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'author'
+                }
+            ]
+        })
+
+        const incorrect_resolution = await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send({...data, availableResolutions: ['P144', 'P240888']})
+            .expect(400)
+
+        expect(incorrect_resolution.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'availableResolutions'
+                }
+            ]
+        })
+
+        const notBoolCanBeLoaded = await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send({...data, canBeDownloaded: 100})
+            .expect(400)
+
+        expect(notBoolCanBeLoaded.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'canBeDownloaded'
+                }
+            ]
+        })
+
+        const NotStringPublicDate = await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send({...data, publicationDate: 2023})
+            .expect(400)
+
+        expect(NotStringPublicDate.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'publicationDate'
+                }
+            ]
+        })
+
+        const NotNumberMinAge = await request(app)
+            .put(`${RouterPath.videos}/${createdVideo.id}`)
+            .send({...data, minAgeRestriction: "122"})
+            .expect(400)
+
+        expect(NotNumberMinAge.body).toEqual({
+            errorsMessages: [
+                {
+                    message: expect.any(String),
+                    field: 'minAgeRestriction'
+                }
+            ]
+        })
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
@@ -140,11 +193,12 @@ describe('/videos', ()=>{
             minAgeRestriction: 16
         }
         const date: string = new Date().toISOString()
-        await request(app)
+        const res = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send(data)
             .expect(204)
 
+        console.log('RESULT:',res.body)
 
        const result =  await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)

@@ -1,6 +1,8 @@
 import {Request, Response, Router} from "express";
 
 import {db_hw_1, Errors, resolutions, ValidationErrorType, videoType} from "../data_base/hw_1_data";
+import {errorMessage} from "../data_base/errorMessages";
+
 
 
 export const videosRouter = Router()
@@ -8,7 +10,7 @@ export const videosRouter = Router()
 videosRouter.get('/', (req:Request, res:Response) => {
     res.send(db_hw_1.videos)
 })
-videosRouter.get('/:id', (req:Request, res:Response) => {
+videosRouter.get('/:id', (req:Request<{id: string}>, res:Response) => {
     for (let i=0; i< db_hw_1.videos.length; i++){
         if(db_hw_1.videos[i].id === +req.params.id){
             res.send(db_hw_1.videos[i])
@@ -37,22 +39,22 @@ videosRouter.post('/', (req:Request, res:Response) => {
     const errors: ValidationErrorType[] = [];
 
     if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
-        errors.push({message: "invalid title", field: 'title'})
+        errors.push({message: errorMessage.title, field: 'title'})
     }
 
     if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
-        errors.push({message: "invalid author", field: 'author'})
+        errors.push({message: errorMessage.author, field: 'author'})
     }
 
     if(resolutions_q){
         for(let i = 0; i < resolutions_q.length; i++){
             if(!Object.values(resolutions)?.includes(resolutions_q[i])){
-                errors.push({message: "invalid resolutions", field: 'availableResolutions'})
+                errors.push({message: errorMessage.availableResolutions, field: 'availableResolutions'})
                 break
             }
 
         }
-    }else errors.push({message: "unexpected resolutions", field: 'availableResolutions'})
+    }else errors.push({message: errorMessage.availableResolutions, field: 'availableResolutions'})
 
     const Errors: Errors = {
         errorsMessages: errors
@@ -78,46 +80,48 @@ videosRouter.post('/', (req:Request, res:Response) => {
 
 
 })
-videosRouter.put('/:id',(req: Request, res:Response) =>{
+videosRouter.put('/:id',(req: Request<{id: string}, {}, {publicationDate: string, minAgeRestriction: number, canBeDownloaded: boolean, title: string, author:string, availableResolutions:resolutions[] }>, res:Response) =>{
 
     const pubicDate:string = req.body.publicationDate
     const minAge:number = req.body.minAgeRestriction
     const canBeDownloaded:boolean = req.body.canBeDownloaded
     const title:string = req.body.title
     const author:string = req.body.author
-    const resolutions_q:[] = req.body.availableResolutions
+    const resolutions_q = req.body.availableResolutions
+
     const errors: ValidationErrorType[] = [];
-    const video:videoType | undefined = db_hw_1.videos.find(c => c.id === +req.params.id)
+
+    const video: videoType | undefined = db_hw_1.videos.find(c => c.id === +req.params.id)
+
     if (video)
     {
 
         if(!title || typeof title !== 'string' || title.trim().length > 40 || title.trim().length === 0){
-            errors.push({message: "invalid title", field: 'title'})
+            errors.push({message: errorMessage.title, field: 'title'})
         }
 
         if(!author || typeof author !== 'string' || author.trim().length > 20 || author.trim().length === 0){
-            errors.push({message: "invalid author", field: 'author'})
+            errors.push({message: errorMessage.author, field: 'author'})
         }
 
         if(typeof canBeDownloaded !== 'boolean'){
-            errors.push({message: "invalid canBeDownloaded", field: 'canBeDownloaded'})
+            errors.push({message: errorMessage.canBeDownloaded, field: 'canBeDownloaded'})
         }
 
-        if(typeof minAge !== 'number' || minAge> 18){
-            errors.push({message: "invalid minAgeRestriction", field: 'minAgeRestriction'})
+        if(typeof minAge !== 'number' || minAge > 18 || minAge < 0){
+            errors.push({message: errorMessage.ageRestriction, field: 'minAgeRestriction'})
         }
 
         const date = new Date(pubicDate)
         if(!date.getDate() || typeof pubicDate !== 'string'){
-            errors.push({message: "invalid publicationDate", field: 'publicationDate'})
+            errors.push({message: errorMessage.publicationDate, field: 'publicationDate'})
         }
 
         if(resolutions_q) {
-            const arr_check = new Set(resolutions_q)
 
             for(let i = 0; i < resolutions_q.length; i++){
                 if(!Object.values(resolutions)?.includes(resolutions_q[i])){
-                    errors.push({message: "invalid resolutions", field: 'availableResolutions'})
+                    errors.push({message: errorMessage.availableResolutions, field: 'availableResolutions'})
                     break
                 }
 
