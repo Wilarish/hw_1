@@ -2,14 +2,14 @@ import request from "supertest";
 import {app, RouterPath} from "../../settings";
 import {createVideos} from "../../models/videos/createVideo";
 import {HTTP_statuses, HTTPStatusType} from "../../data_base/HTTP_statuses";
-import {resolutions} from "../../data_base/hw_1_data";
 
 
-export const createUserManagerOptions= {
 
-}
+// export const createUserManagerOptions= {
+//
+// }
 
-export const test_manager ={
+export const video_test_manager ={
 
     async createUser( data: createVideos, expectedStatusCode: HTTPStatusType = HTTP_statuses.CREATED_201 ) {
 

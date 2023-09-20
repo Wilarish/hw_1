@@ -1,10 +1,10 @@
 import request from "supertest";
 import {app, RouterPath} from "../../settings";
-import {resolutions} from "../../data_base/hw_1_data";
 import {createVideos} from "../../models/videos/createVideo";
 import {updateVideo} from "../../models/videos/updateVideo";
-import {test_manager} from "../manager/test_manager";
+import {video_test_manager} from "../manager/video_test_manager";
 import {HTTP_statuses} from "../../data_base/HTTP_statuses";
+import {videoType} from "../../models/videos/mainVideoType";
 
 describe('/videos', ()=>{
     beforeAll(async ()=>{
@@ -15,11 +15,11 @@ describe('/videos', ()=>{
     it('should return 200 and empty array', async () => {
         await request(app)
             .get(RouterPath.videos)
-            .expect(200, [])
+            .expect(HTTP_statuses.OK_200, [])
     })
 
-    let createdVideo: any = null
-    let createdVideo_2: any = null
+    let createdVideo: videoType;
+    let createdVideo_2: videoType;
 
     it('should create video with correct data', async () => {
 
@@ -29,14 +29,14 @@ describe('/videos', ()=>{
             availableResolutions: ['P144']
         }
         // Don`t understand this one
-        const {response, created_Video_Manager} = await test_manager.createUser(data)
+        const {created_Video_Manager} = await video_test_manager.createUser(data)
 
         createdVideo = created_Video_Manager;
 
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(200, createdVideo)
+            .expect(HTTP_statuses.OK_200, createdVideo)
 
     });
     it('should create video_2 with correct data', async () => {
@@ -47,14 +47,14 @@ describe('/videos', ()=>{
             availableResolutions: ['P144','P720']
         }
         // Don`t understand this one
-        const {response,created_Video_Manager} = await test_manager.createUser(data)
+        const {created_Video_Manager} = await video_test_manager.createUser(data)
 
         createdVideo_2 = created_Video_Manager;
 
 
         await request(app)
             .get(RouterPath.videos)
-            .expect(200, [createdVideo, createdVideo_2])
+            .expect(HTTP_statuses.OK_200, [createdVideo, createdVideo_2])
     });
     it('shouldn`t сreate video with incorrect data', async () => {
 
@@ -64,7 +64,7 @@ describe('/videos', ()=>{
             availableResolutions: ['P144','P72990']
         }
 
-        await test_manager.createUser(data, HTTP_statuses.BAD_REQUEST_400)
+        await video_test_manager.createUser(data, HTTP_statuses.BAD_REQUEST_400)
     });
     it('shouldn`t update video ', async () => {
 
@@ -80,7 +80,7 @@ describe('/videos', ()=>{
        const longTitle = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, title: 'hjfsbkfhjbwehfbjksdhbfjhdsbfjkhsdbkfjhsdbkfjhsdbfjsiobnononougbobuoibhiudhb'})
-            .expect(400, )
+            .expect(HTTP_statuses.BAD_REQUEST_400 )
 
         expect(longTitle.body).toEqual({
             errorsMessages: [
@@ -94,7 +94,7 @@ describe('/videos', ()=>{
         const nullAuthor =  await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, author: null})
-            .expect(400)
+            .expect(HTTP_statuses.BAD_REQUEST_400)
 
         expect(nullAuthor.body).toEqual({
             errorsMessages: [
@@ -108,7 +108,7 @@ describe('/videos', ()=>{
         const incorrect_resolution = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, availableResolutions: ['P144', 'P240888']})
-            .expect(400)
+            .expect(HTTP_statuses.BAD_REQUEST_400)
 
         expect(incorrect_resolution.body).toEqual({
             errorsMessages: [
@@ -122,7 +122,7 @@ describe('/videos', ()=>{
         const notBoolCanBeLoaded = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, canBeDownloaded: 100})
-            .expect(400)
+            .expect(HTTP_statuses.BAD_REQUEST_400)
 
         expect(notBoolCanBeLoaded.body).toEqual({
             errorsMessages: [
@@ -136,7 +136,7 @@ describe('/videos', ()=>{
         const NotStringPublicDate = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, publicationDate: 2023})
-            .expect(400)
+            .expect(HTTP_statuses.BAD_REQUEST_400)
 
         expect(NotStringPublicDate.body).toEqual({
             errorsMessages: [
@@ -150,7 +150,7 @@ describe('/videos', ()=>{
         const NotNumberMinAge = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send({...data, minAgeRestriction: "122"})
-            .expect(400)
+            .expect(HTTP_statuses.BAD_REQUEST_400)
 
         expect(NotNumberMinAge.body).toEqual({
             errorsMessages: [
@@ -163,7 +163,7 @@ describe('/videos', ()=>{
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(200, createdVideo)
+            .expect(HTTP_statuses.OK_200, createdVideo)
     });
     it('should update unexpected video ', async () => {
 
@@ -179,7 +179,7 @@ describe('/videos', ()=>{
         await request(app)
             .put(`${RouterPath.videos}/${-100}`)
             .send(data)
-            .expect(404)
+            .expect(HTTP_statuses.NOT_FOUND_404)
 
     });
     it('should update video correct ', async () => {
@@ -192,17 +192,16 @@ describe('/videos', ()=>{
             publicationDate: "2023-09-21T09:55:46.372Z",
             minAgeRestriction: 16
         }
-        const date: string = new Date().toISOString()
         const res = await request(app)
             .put(`${RouterPath.videos}/${createdVideo.id}`)
             .send(data)
-            .expect(204)
+            .expect(HTTP_statuses.NO_CONTENT_204)
 
         console.log('RESULT:',res.body)
 
        const result =  await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(200 )
+            .expect(HTTP_statuses.OK_200 )
 
         expect(result.body).toEqual({
             ...createdVideo,
@@ -213,11 +212,11 @@ describe('/videos', ()=>{
 
         await request(app)
             .delete(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(204)
+            .expect(HTTP_statuses.NO_CONTENT_204)
 
         await request(app)
             .get(`${RouterPath.videos}/${createdVideo.id}`)
-            .expect(404)
+            .expect(HTTP_statuses.NOT_FOUND_404)
 
     });
     it('shouldn`t delete unexpected video', async () => {
@@ -225,11 +224,11 @@ describe('/videos', ()=>{
 
         await request(app)
             .delete(`${RouterPath.videos}/${-100}`)
-            .expect(404)
+            .expect(HTTP_statuses.NOT_FOUND_404)
 
         await request(app)
             .get(`${RouterPath.videos}/${-100}`)
-            .expect(404)
+            .expect(HTTP_statuses.NOT_FOUND_404)
 
     });
 

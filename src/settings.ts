@@ -2,8 +2,8 @@ import express, {Request, Response} from "express";
 
 import {coursesRouter} from "./rotes/courses-router";
 import {db} from "./data_base/data";
-import {db_hw_1} from "./data_base/hw_1_data";
 import {videosRouter} from "./rotes/videos-router";
+import {DB_videos} from "./repositories/video-repository";
 
 export const app = express()
 
@@ -24,7 +24,7 @@ app.get('/', (req:Request, res:Response) => {
 })
 app.delete('/testing/all-data',(req:Request, res:Response)=>{
     db.courses = []
-    db_hw_1.videos = []
+    DB_videos.videos = []
     res.sendStatus(204)
 
 })

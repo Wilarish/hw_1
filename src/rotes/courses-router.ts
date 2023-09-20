@@ -1,7 +1,6 @@
 import {Request, Response, Router} from "express";
 import {CourseType, db} from "../data_base/data";
-import * as crypto from "crypto";
-import {db_hw_1} from "../data_base/hw_1_data";
+
 
 export const coursesRouter = Router()
 

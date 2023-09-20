@@ -1,23 +1,28 @@
-import {Request, Response, Router} from "express";
+import e, {Request, Response, Router} from "express";
 
-import {db_hw_1, Errors, resolutions, ValidationErrorType, videoType} from "../data_base/hw_1_data";
+import { Errors, resolutions, ValidationErrorType} from "../data_base/hw_1_data";
 import {errorMessage} from "../data_base/errorMessages";
+import {DB_videos, videoRepository} from "../repositories/video-repository";
+import {videoType} from "../models/videos/mainVideoType";
+import {HTTP_statuses} from "../data_base/HTTP_statuses";
 
 
 
 export const videosRouter = Router()
 
 videosRouter.get('/', (req:Request, res:Response) => {
-    res.send(db_hw_1.videos)
+    res.send(DB_videos.videos)
 })
 videosRouter.get('/:id', (req:Request<{id: string}>, res:Response) => {
-    for (let i=0; i< db_hw_1.videos.length; i++){
-        if(db_hw_1.videos[i].id === +req.params.id){
-            res.send(db_hw_1.videos[i])
-            break;
-        }
+
+    const foundVideo = videoRepository.findVideo(req.params.id)
+
+    if(!foundVideo)
+        res.sendStatus(HTTP_statuses.NOT_FOUND_404)
+
+    else {
+        res.send(foundVideo)
     }
-    res.sendStatus(404)
 })
 // videosRouter.get('/', (req:Request, res:Response) => {
 //     if(req.query.id){
@@ -60,22 +65,16 @@ videosRouter.post('/', (req:Request, res:Response) => {
         errorsMessages: errors
     }
     if(errors.length > 0){
-        res.status(400).send(Errors)
+        res.status(HTTP_statuses.BAD_REQUEST_400).send(Errors)
     }
     else{
-        const date = new Date()
-        const video: videoType = {
-            id: +(new Date()),
+        const video = videoRepository.createVideo({
             title: title,
             author: author,
-            canBeDownloaded: false,
-            minAgeRestriction: null,
-            createdAt: date.toISOString(),
-            publicationDate: new Date(date.setDate(date.getDate() +1)).toISOString(), // createdAt = 1 day, (put)
-            availableResolutions: resolutions_q
-        }
-        db_hw_1.videos.push(video)
-        res.status(201).send(video)
+            availableResolutions:  resolutions_q
+        })
+        DB_videos.videos.push(video)
+        res.status(HTTP_statuses.CREATED_201).send(video)
     }
 
 
@@ -91,7 +90,7 @@ videosRouter.put('/:id',(req: Request<{id: string}, {}, {publicationDate: string
 
     const errors: ValidationErrorType[] = [];
 
-    const video: videoType | undefined = db_hw_1.videos.find(c => c.id === +req.params.id)
+    const video: videoType | undefined = DB_videos.videos.find(c => c.id === +req.params.id)
 
     if (video)
     {
@@ -133,7 +132,7 @@ videosRouter.put('/:id',(req: Request<{id: string}, {}, {publicationDate: string
             errorsMessages: errors
         }
         if(errors.length > 0){
-            res.status(400).send(Errors)
+            res.status(HTTP_statuses.BAD_REQUEST_400).send(Errors)
         }
         else {
             video.title = title
@@ -143,24 +142,24 @@ videosRouter.put('/:id',(req: Request<{id: string}, {}, {publicationDate: string
             video.publicationDate = pubicDate
             video.minAgeRestriction = minAge
 
-            res.status(204).send(video)
+            res.status(HTTP_statuses.NO_CONTENT_204).send(video)
         }
 
     }
     else{
-        res.sendStatus (404)
+        res.sendStatus (HTTP_statuses.NOT_FOUND_404)
     }
 
 })
 videosRouter.delete('/:id', (req:Request, res:Response) => {
-    for(let i =0;i<db_hw_1.videos.length;i++){
+    for(let i =0;i<DB_videos.videos.length;i++){
 
-        if (db_hw_1.videos[i].id === +req.params.id){
-            db_hw_1.videos.splice(i,1)
-            res.sendStatus(204)
+        if (DB_videos.videos[i].id === +req.params.id){
+            DB_videos.videos.splice(i,1)
+            res.sendStatus(HTTP_statuses.NO_CONTENT_204)
             break;
         }
     }
-    res.status(404).send('course with this id does not exist ')
+    res.status(HTTP_statuses.NOT_FOUND_404).send('course with this id does not exist ')
 
 })
